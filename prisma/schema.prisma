@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Plan {
+  id               String                @id @default(uuid())
+  title            String
+  startDate        DateTime              @db.Date
+  endDate          DateTime              @db.Date
+  priority         String
+  successCriteria  String
+  estimatedSeconds Int
+  version          Int                   @default(1)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  revisions        PlanRevision[]
+  todos            Todo[]
+  review           Review?
+  transfersIn      ImprovementTransfer[] @relation("TargetPlan")
+}
+
+model PlanRevision {
+  id               String   @id @default(uuid())
+  planId           String
+  version          Int
+  title            String
+  startDate        DateTime @db.Date
+  endDate          DateTime @db.Date
+  priority         String
+  successCriteria  String
+  estimatedSeconds Int
+  createdAt        DateTime @default(now())
+  plan             Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, version])
+  @@index([planId])
+}
+
+model Todo {
+  id               String            @id @default(uuid())
+  planId           String
+  content          String
+  status           String            @default("IN_PROGRESS")
+  dueDate          DateTime?         @db.Date
+  priority         String
+  tags             String[]          @default([])
+  estimatedSeconds Int               @default(0)
+  completionCycle  Int               @default(0)
+  deletedAt        DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  plan             Plan              @relation(fields: [planId], references: [id], onDelete: Cascade)
+  executionLogs    ExecutionLog[]
+  completionEvents CompletionEvent[]
+
+  @@index([planId, deletedAt])
+  @@index([status, dueDate])
+}
+
+model ExecutionLog {
+  id            String   @id @default(uuid())
+  todoId        String
+  startedAt     DateTime
+  endedAt       DateTime
+  actualSeconds Int
+  blockedReason String?
+  createdAt     DateTime @default(now())
+  todo          Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+
+  @@index([todoId])
+}
+
+model CompletionEvent {
+  id          String   @id @default(uuid())
+  todoId      String
+  cycle       Int
+  completedAt DateTime @default(now())
+  todo        Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+
+  @@unique([todoId, cycle])
+  @@index([todoId])
+}
+
+model Review {
+  id          String               @id @default(uuid())
+  planId      String               @unique
+  reflection  String               @default("")
+  improvement String               @default("")
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  plan        Plan                 @relation(fields: [planId], references: [id], onDelete: Cascade)
+  transfer    ImprovementTransfer?
+}
+
+model ImprovementTransfer {
+  id           String   @id @default(uuid())
+  reviewId     String   @unique
+  targetPlanId String
+  content      String
+  createdAt    DateTime @default(now())
+  review       Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  targetPlan   Plan     @relation("TargetPlan", fields: [targetPlanId], references: [id], onDelete: Cascade)
+
+  @@index([targetPlanId])
+}
