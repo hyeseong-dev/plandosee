@@ -72,7 +72,7 @@ summary.getRange("A7:A10").format.fill = cream;
 summary.getRange("B7:B10").format.font = { name: font, size: 14, bold: true, color: navy };
 summary.getRange("A12:H15").values = [
   ["환경", "실행 시각", "명령/대상", "단위", "브라우저", "결과", "통과", "비고"],
-  ["로컬", "2026-09-10 22:35 KST", "pnpm test:all", "8 unit + 6 E2E", "Chromium", "모두 통과", 14, "린트·타입·빌드 포함"],
+    ["로컬", "2026-09-10 23:00 KST", "pnpm test:all", "8 unit + 6 E2E", "Chromium", "모두 통과", 14, "린트·타입·빌드 포함"],
   ["운영", "배포 후 갱신", "Vercel URL", "익명 스모크", "Chromium", "대기", 0, "시크릿 컨텍스트"],
   ["근거", "2026-09-10", "Playwright JSON + 명령 출력", "자동화", "-", "보존", null, "상세는 테스트 케이스/실행 이력"],
 ];
@@ -168,17 +168,20 @@ trace.getRange("D:D").format.columnWidth = 28;
 trace.freezePanes.freezeRows(6);
 trace.tabColor = "#D6A55A";
 
-baseSheet(history, "A1:G9");
+baseSheet(history, "A1:G12");
 title(history, "실행 이력", "재현 가능한 명령과 수정·재검증 기록", "G");
 history.getRange("A6:G6").values = [["순서", "시각(KST)", "환경", "명령", "결과", "발견 사항", "조치"]];
 tableHeader(history.getRange("A6:G6"));
-history.getRange("A7:G9").values = [
+history.getRange("A7:G12").values = [
   [1, "2026-09-10 22:35", "로컬", "pnpm test:all", "실패", "Vitest가 Playwright 파일을 함께 수집", "vitest exclude로 러너 범위 분리"],
   [2, "2026-09-10 22:35", "로컬", "pnpm test:all", "통과", "단위 8·E2E 6 통과", "로컬 기준선 확정"],
-  [3, "배포 후", "운영", "pnpm test:e2e:production", "대기", "-", "운영 URL 확정 후 실행"],
+  [3, "2026-09-10 22:55", "로컬", "pnpm test:all", "실패", "Codex 작업 종료와 함께 분리 실행한 로컬 DB 프로세스 종료", "DB를 독립 전경 세션으로 재기동"],
+  [4, "2026-09-10 22:57", "로컬", "pnpm test:all", "실패", "동일 환경 수명 문제 재현", "새 로컬 DB 생성·마이그레이션·시드"],
+  [5, "2026-09-10 23:00", "로컬", "pnpm test:all", "통과", "단위 8·E2E 6, 린트·타입·빌드 통과", "최종 로컬 기준선 확정"],
+  [6, "배포 후", "운영", "pnpm test:e2e:production", "대기", "-", "운영 URL 확정 후 실행"],
 ];
-history.getRange("A7:G9").format.borders = { insideHorizontal: { style: "thin", color: border } };
-history.getRange("D7:G9").format.wrapText = true;
+history.getRange("A7:G12").format.borders = { insideHorizontal: { style: "thin", color: border } };
+history.getRange("D7:G12").format.wrapText = true;
 history.getRange("A:A").format.columnWidth = 10;
 history.getRange("B:B").format.columnWidth = 23;
 history.getRange("C:C").format.columnWidth = 12;
@@ -186,7 +189,7 @@ history.getRange("D:D").format.columnWidth = 29;
 history.getRange("E:E").format.columnWidth = 12;
 history.getRange("F:F").format.columnWidth = 35;
 history.getRange("G:G").format.columnWidth = 31;
-history.getRange("7:9").format.rowHeight = 34;
+history.getRange("7:12").format.rowHeight = 34;
 history.tabColor = "#8B6F9F";
 
 workbook.recalculate();
