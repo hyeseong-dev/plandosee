@@ -143,6 +143,18 @@ test("비밀번호 변경은 이전 세션을 막고 내보내기에 비밀값�
     expect((await account.context.request.get("/api/workspace")).status()).toBe(200);
 
     await createPlan(account.context, "세션 변경 후 계획");
+    const page = await account.context.newPage();
+    await page.goto("/");
+    await expect(page.getByLabel("개인 자료 안내")).toContainText("운영 세션 점검님의 정원이에요");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+    const axe = await new AxeBuilder({ page }).analyze();
+    expect(axe.violations.filter((item) => item.impact === "critical" || item.impact === "serious")).toEqual([]);
+    await page.getByRole("button", { name: "운영 세션 점검", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "내 계정" })).toBeVisible();
+    await expect(page.getByText("계정을 지우면 계획, 할 일, 실행 기록, 돌아보기와 5일 기록이 함께 영구 삭제됩니다.")).toBeVisible();
+    await page.setViewportSize({ width: 360, height: 780 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+
     const exported = await account.context.request.get("/api/export");
     expect(exported.ok()).toBe(true);
     const payload = await exported.json();
