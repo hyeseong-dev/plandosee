@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.git
+.next
+node_modules
+test-results
+playwright-report
+outputs/*/previews
+outputs/*/inspection.txt
+outputs/*/formula-errors.txt
+outputs/**/*.inspect.ndjson
