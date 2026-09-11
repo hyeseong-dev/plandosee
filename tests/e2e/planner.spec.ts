@@ -104,6 +104,5 @@ test("전체 자료를 한 파일로 내보낸다", async ({ page }) => {
   expect(payload.data.account).toEqual(expect.objectContaining({ id: expect.any(String), email: expect.any(String) }));
   expect(payload.data.plans.length).toBeGreaterThanOrEqual(2);
   expect(payload.data.plans.find((plan: { todos: unknown[] }) => plan.todos.length > 0).todos[0]).toHaveProperty("id");
-  expect(payload.data.diaryStudy.entries).toHaveLength(5);
   expect(JSON.stringify(payload)).not.toMatch(/passwordHash|tokenHash|pds_session/);
 });

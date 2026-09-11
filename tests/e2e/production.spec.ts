@@ -125,8 +125,8 @@ test("두 운영 계정은 서로의 자료를 양방향으로 읽기·수정·�
   }
 });
 
-test("비밀번호 변경은 이전 세션을 막고 5일 기록과 전체 내보내기를 보존한다", async ({ browser, baseURL }) => {
-  const account = await createAccount(browser, baseURL!, "운영 5일 점검");
+test("비밀번호 변경은 이전 세션을 막고 내보내기에 비밀값이 없다", async ({ browser, baseURL }) => {
+  const account = await createAccount(browser, baseURL!, "운영 세션 점검");
   const otherSession = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] } });
   try {
     expect((await otherSession.request.post("/api/auth/login", { data: {
@@ -141,6 +141,26 @@ test("비밀번호 변경은 이전 세션을 막고 5일 기록과 전체 내�
     account.credentials.password = newPassword;
     expect((await otherSession.request.get("/api/workspace")).status()).toBe(401);
     expect((await account.context.request.get("/api/workspace")).status()).toBe(200);
+
+    await createPlan(account.context, "세션 변경 후 계획");
+    const exported = await account.context.request.get("/api/export");
+    expect(exported.ok()).toBe(true);
+    const payload = await exported.json();
+    expect(payload.schemaVersion).toBe(2);
+    expect(payload.timezone).toBe("Asia/Seoul");
+    expect(payload.durationUnit).toBe("seconds");
+    expect(payload.data.account.email).toBe(account.credentials.email);
+    expect(payload.data.plans).toHaveLength(1);
+    expect(JSON.stringify(payload)).not.toMatch(/passwordHash|tokenHash|pds_session/);
+  } finally {
+    await otherSession.close();
+    await deleteAccount(account);
+  }
+});
+
+test("5일 기록과 규칙 변경을 전체 내보내기에 보존한다", async ({ browser, baseURL }) => {
+  const account = await createAccount(browser, baseURL!, "운영 5일 점검");
+  try {
 
     expect((await account.context.request.post("/api/diary", { data: {
       action: "createStudy",
@@ -183,11 +203,9 @@ test("비밀번호 변경은 이전 세션을 막고 5일 기록과 전체 내�
     expect(payload.schemaVersion).toBe(2);
     expect(payload.timezone).toBe("Asia/Seoul");
     expect(payload.durationUnit).toBe("seconds");
-    expect(payload.data.account.email).toBe(account.credentials.email);
     expect(payload.data.diaryStudy.entries).toHaveLength(5);
     expect(JSON.stringify(payload)).not.toMatch(/passwordHash|tokenHash|pds_session/);
   } finally {
-    await otherSession.close();
     await deleteAccount(account);
   }
 });
