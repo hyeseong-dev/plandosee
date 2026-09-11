@@ -13,7 +13,7 @@ export default defineConfig({
   reporter: [["list"], ["json", { outputFile: "test-results/playwright-results.json" }]],
   use: {
     baseURL,
-    trace: "retain-on-failure",
+    trace: production ? "off" : "retain-on-failure",
     screenshot: "only-on-failure",
     locale: "ko-KR",
     timezoneId: "Asia/Seoul",

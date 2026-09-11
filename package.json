@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "cross-env RESET_TEST_DATA=true tsx prisma/seed.ts && playwright test",
-    "test:e2e:production": "cross-env TEST_ENV=production playwright test",
+    "test:e2e:production": "cross-env TEST_ENV=production PLAYWRIGHT_BASE_URL=https://plandosee-chi.vercel.app playwright test",
     "test:all": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm test:e2e",
     "db:dev": "prisma dev --detach --name plandosee",
     "db:generate": "prisma generate",
