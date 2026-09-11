@@ -6,7 +6,10 @@ const notice = "지금은 로그인이 없어 링크를 아는 사람은 누구�
 test("익명 첫 화면, 공개 안내, 반응형, 접근성", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText(notice, { exact: true })).toBeVisible();
-  await expect(page.getByText("PlanDoSee 프로젝트 구현·배포", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("계획 선택")).toHaveValue(
+    "41000000-0000-4000-8000-000000000001",
+  );
+  await expect(page.getByRole("heading", { name: "오늘의 계획과 실제" })).toBeVisible();
   expect(await page.locator(".todo-row").count()).toBeGreaterThanOrEqual(5);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   const axe = await new AxeBuilder({ page }).analyze();
@@ -16,7 +19,7 @@ test("익명 첫 화면, 공개 안내, 반응형, 접근성", async ({ page }) 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
 
-test("운영 DB에 실제 계획·할 일·실행 기록과 비영 수 집계가 있다", async ({ page, request }) => {
+test("운영 DB에 실제 계획·할 일·실행 기록과 0이 아닌 수 집계가 있다", async ({ page, request }) => {
   const response = await request.get("/api/workspace");
   expect(response.ok()).toBe(true);
   const data = await response.json();
@@ -26,6 +29,7 @@ test("운영 DB에 실제 계획·할 일·실행 기록과 비영 수 집계가
   expect(plan.todos.flatMap((item: { executionLogs: unknown[] }) => item.executionLogs).length).toBeGreaterThanOrEqual(3);
   await page.goto("/");
   await page.getByRole("button", { name: "돌아보기", exact: true }).click();
+  await expect(page.locator(".metric-card").first()).toBeVisible();
   const metrics = await page.locator(".metric-card strong").allTextContents();
   expect(metrics.some((value) => Number(value) > 0)).toBe(true);
   await page.locator(".metric-card").first().click();
@@ -43,9 +47,9 @@ test("새로고침과 전체 JSON 내보내기가 ID·날짜·값·단위를 보
   const exported = await request.get("/api/export");
   expect(exported.ok()).toBe(true);
   const body = await exported.json();
-  expect(body.unit).toBe("seconds");
+  expect(body.durationUnit).toBe("seconds");
   expect(body.timezone).toBe("Asia/Seoul");
-  expect(body.plans.some((item: { id: string }) => item.id === original.id)).toBe(true);
+  expect(body.data.plans.some((item: { id: string }) => item.id === original.id)).toBe(true);
 });
 
 test("운영 응답·콘솔·페이지에 비밀 연결 문자열이 드러나지 않는다", async ({ page, request }) => {

@@ -34,7 +34,13 @@ pnpm dev
 pnpm test:all
 ```
 
-명령은 린트, 타입 검사, 단위 테스트, 프로덕션 빌드, Chromium E2E를 차례로 실행합니다. 실행 근거와 운영 검증 결과는 배포 완료 후 생성되는 `outputs`의 엑셀 파일에 기록합니다.
+명령은 린트, 타입 검사, 단위 테스트, 프로덕션 빌드, Chromium E2E를 차례로 실행합니다. 실행 근거와 운영 검증 결과는 `outputs/01a08aec-efc7-7340-b823-2e03084046dd/plandosee-test-evidence.xlsx`에 기록합니다.
+
+## 배포
+
+- 공개 소스: https://github.com/hyeseong-dev/plandosee
+- 운영 서비스: https://plandosee-chi.vercel.app
+- 운영 검증: Chromium E2E 4건 통과(익명·접근성, Neon 실데이터·집계, 복원·내보내기, 비밀정보 노출)
 
 ## 문서
 

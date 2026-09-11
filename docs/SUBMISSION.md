@@ -1,6 +1,6 @@
 # PlanDoSee 최종 확인·제출 기록
 
-작성일: 2026-09-10
+작성일: 2026-09-11
 
 ## 짧은 최종 확인 안내
 
@@ -17,11 +17,12 @@
 
 ## 제출 URL
 
-- GitHub 저장소: 배포 단계에서 기록
-- Vercel 운영 URL: 배포 단계에서 기록
+- GitHub 저장소: https://github.com/hyeseong-dev/plandosee
+- Vercel 운영 URL: https://plandosee-chi.vercel.app
 
 ## 실행 결과
 
-- 로컬 통합 검증: 최종 실행 후 기록
-- 운영 환경 검증: 배포 후 기록
-- 엑셀 근거 파일: 운영 검증 완료 후 기록
+- 로컬 통합 검증: `pnpm test:all` 통과 — ESLint, TypeScript, 단위 테스트 8건, Next.js 프로덕션 빌드, Chromium E2E 6건
+- 운영 환경 검증: `PLAYWRIGHT_BASE_URL=https://plandosee-chi.vercel.app pnpm test:e2e:production` 통과 — Chromium E2E 4건
+- 운영 재검증 이력: 최초 실행에서 화면 locator, 비동기 로딩 대기, 내보내기 필드 경로 등 검증 코드 3건을 보완한 뒤 4/4 통과
+- 엑셀 근거 파일: `outputs/01a08aec-efc7-7340-b823-2e03084046dd/plandosee-test-evidence.xlsx`
