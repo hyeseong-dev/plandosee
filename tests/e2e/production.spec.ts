@@ -48,7 +48,7 @@ test("공개 첫 화면은 로그인이고 비로그인 자료 요청은 거절�
   const page = await context.newPage();
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "다시 만나서 반가워요" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "가입" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "가입하기" })).toBeVisible();
   expect((await context.request.get("/api/workspace")).status()).toBe(401);
   expect((await context.request.get("/api/export")).status()).toBe(401);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);

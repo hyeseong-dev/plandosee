@@ -57,6 +57,7 @@ next-env.d.ts
 /outputs/*/inspection.txt
 /outputs/*/formula-errors.txt
 /outputs/**/*.inspect.ndjson
+/outputs/**/node_modules/
 
 .vercel
 .env*

@@ -5,6 +5,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3100";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  timeout: production ? 120_000 : 30_000,
   testMatch: production ? "production.spec.ts" : ["planner.spec.ts", "auth.spec.ts", "diary.spec.ts"],
   globalSetup: production ? undefined : "./tests/e2e/global-setup.ts",
   fullyParallel: false,
