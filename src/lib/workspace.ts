@@ -14,8 +14,9 @@ export const workspaceInclude = {
   transfersIn: { orderBy: { createdAt: "desc" as const } },
 };
 
-export async function loadWorkspace() {
+export async function loadWorkspace(userId: string) {
   const plans = await prisma.plan.findMany({
+    where: { userId },
     orderBy: [{ startDate: "desc" }, { createdAt: "desc" }],
     include: workspaceInclude,
   });

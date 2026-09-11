@@ -9,9 +9,11 @@ import {
   Plus,
   Sprout,
   TriangleAlert,
+  LogOut,
   X,
 } from "lucide-react";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import {
   calculateReview,
   dateKey,
@@ -27,6 +29,8 @@ import {
   TodayView,
 } from "./views";
 import { ExecutionDialog, PlanDialog, TodoDialog } from "./dialogs";
+import { DiaryView } from "./diary-view";
+import { AccountDialog } from "./account-dialog";
 
 export type Metric =
   | "planned"
@@ -36,8 +40,8 @@ export type Metric =
   | "estimated"
   | "actual"
   | "difference";
-type View = "today" | "plan" | "review";
-type DialogName = null | "plan" | "todo" | "execution";
+type View = "today" | "plan" | "review" | "diary";
+type DialogName = null | "plan" | "todo" | "execution" | "account";
 
 async function readJson(response: Response) {
   const data = await response.json();
@@ -45,7 +49,8 @@ async function readJson(response: Response) {
   return data;
 }
 
-export function PlannerApp() {
+export function PlannerApp({ user }: { user: { id: string; email: string; displayName: string } }) {
+  const router = useRouter();
   const [workspace, setWorkspace] = useState<WorkspaceDto | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState("");
   const [view, setView] = useState<View>("today");
@@ -150,6 +155,12 @@ export function PlannerApp() {
     setDialog("execution");
   }
 
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.replace("/");
+    router.refresh();
+  }
+
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -169,6 +180,7 @@ export function PlannerApp() {
               ["today", "오늘"],
               ["plan", "계획"],
               ["review", "돌아보기"],
+              ["diary", "5일 기록"],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -183,22 +195,21 @@ export function PlannerApp() {
             </button>
           ))}
         </nav>
-        <a
-          className="icon-button export-button"
-          href="/api/export"
-          download
-          aria-label="내 자료 전체를 파일로 내보내기"
-        >
-          <Download size={19} />
-          <span>내보내기</span>
-        </a>
+        <div className="account-actions">
+          <button className="account-chip" title={user.email} onClick={() => setDialog("account")}>{user.displayName}</button>
+          <a className="icon-button export-button" href="/api/export" download aria-label="내 자료 전체를 파일로 내보내기">
+            <Download size={19} /><span>내보내기</span>
+          </a>
+          <button className="icon-button" onClick={logout} aria-label="로그아웃">
+            <LogOut size={18} /><span className="logout-label">로그아웃</span>
+          </button>
+        </div>
       </header>
       <main>
-        <section className="privacy-notice" aria-label="공개 안내">
+        <section className="privacy-notice secure" aria-label="개인 자료 안내">
           <Leaf size={20} aria-hidden="true" />
           <p>
-            지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이
-            봐도 괜찮은 내용만 넣으세요
+            <strong>{user.displayName}</strong>님의 정원이에요. 이 계정의 계획과 기록만 안전하게 보여 드려요.
           </p>
         </section>
         {error && (
@@ -218,6 +229,8 @@ export function PlannerApp() {
         )}
         {workspace === null ? (
           <LoadingState />
+        ) : view === "diary" ? (
+          <DiaryView />
         ) : workspace.plans.length === 0 ? (
           <EmptyWorkspace onCreate={() => setDialog("plan")} />
         ) : selectedPlan ? (
@@ -328,6 +341,7 @@ export function PlannerApp() {
           }}
         />
       )}
+      {dialog === "account" && <AccountDialog user={user} onClose={() => setDialog(null)} />}
       {dialog === "todo" && selectedPlan && (
         <TodoDialog
           todo={editingTodo}

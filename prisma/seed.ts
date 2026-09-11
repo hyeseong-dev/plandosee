@@ -13,6 +13,7 @@ const at = (value: string) => new Date(value);
 
 async function main() {
   if (process.env.RESET_TEST_DATA === "true") {
+    await prisma.user.deleteMany();
     await prisma.plan.deleteMany();
   }
 

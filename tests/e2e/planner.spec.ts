@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const notice = "지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이 봐도 괜찮은 내용만 넣으세요";
+const notice = "로컬 검증 사용자님의 정원이에요. 이 계정의 계획과 기록만 안전하게 보여 드려요.";
 
-test("공개 안내, 기본 목록, 반응형, 접근성", async ({ page }) => {
+test("개인 자료 안내, 기본 목록, 반응형, 접근성", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText(notice, { exact: true })).toBeVisible();
   await expect(page.locator(".todo-row")).toHaveCount(5);
@@ -59,12 +59,12 @@ test("할 일 추가·수정·새로고침 복원·삭제와 XSS 안전 표시",
   await expect(page.getByText("안전 표시 확인 완료", { exact: true })).toHaveCount(0);
 });
 
-test("빠른 완료 요청은 완료 이벤트 하나와 완료 수 하나만 늘린다", async ({ page, request }) => {
+test("빠른 완료 요청은 완료 이벤트 하나와 완료 수 하나만 늘린다", async ({ page }) => {
   await page.goto("/");
   const button = page.getByLabel("로컬 자동화 테스트 완료로 표시");
   await button.dblclick({ delay: 1 });
   await expect(page.getByLabel("로컬 자동화 테스트 다시 진행 중으로")).toBeVisible();
-  const data = await (await request.get("/api/workspace")).json();
+  const data = await (await page.request.get("/api/workspace")).json();
   const plan = data.plans.find((item: { id: string }) => item.id === "10000000-0000-4000-8000-000000000001");
   const todo = plan.todos.find((item: { id: string }) => item.id === "20000000-0000-4000-8000-000000000004");
   expect(todo.completionEvents).toHaveLength(1);
@@ -93,8 +93,9 @@ test("계획 수정 전 값 보존, 돌아보기 저장과 다음 계획 전달"
   await expect(page.getByText("운영 환경에서도 같은 흐름을 다시 확인한다.", { exact: true })).toBeVisible();
 });
 
-test("전체 자료를 한 파일로 내보낸다", async ({ request }) => {
-  const response = await request.get("/api/export");
+test("전체 자료를 한 파일로 내보낸다", async ({ page }) => {
+  await page.goto("/");
+  const response = await page.request.get("/api/export");
   expect(response.ok()).toBe(true);
   expect(response.headers()["content-disposition"]).toContain("plandosee-");
   const payload = await response.json();

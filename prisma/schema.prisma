@@ -7,8 +7,33 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id                String        @id @default(uuid())
+  email             String        @unique
+  displayName       String
+  passwordHash      String
+  passwordChangedAt DateTime      @default(now())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  sessions          Session[]
+  plans             Plan[]
+  diaryStudy        DiaryStudy?
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
 model Plan {
   id               String                @id @default(uuid())
+  userId           String?
   title            String
   startDate        DateTime              @db.Date
   endDate          DateTime              @db.Date
@@ -22,6 +47,9 @@ model Plan {
   todos            Todo[]
   review           Review?
   transfersIn      ImprovementTransfer[] @relation("TargetPlan")
+  user             User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model PlanRevision {
@@ -107,4 +135,48 @@ model ImprovementTransfer {
   targetPlan   Plan     @relation("TargetPlan", fields: [targetPlanId], references: [id], onDelete: Cascade)
 
   @@index([targetPlanId])
+}
+
+model DiaryStudy {
+  id            String           @id @default(uuid())
+  userId        String           @unique
+  question      String
+  metricName    String
+  unit          String
+  missingRule   String
+  duplicateRule String
+  outlierRule   String
+  roundingRule  String
+  weekStartsOn  String           @default("MONDAY")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries       DiaryEntry[]
+  ruleChange    DiaryRuleChange?
+}
+
+model DiaryEntry {
+  id        String     @id @default(uuid())
+  studyId   String
+  date      DateTime   @db.Date
+  value     Float
+  note      String     @default("")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  study     DiaryStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  @@unique([studyId, date])
+  @@index([studyId, date])
+}
+
+model DiaryRuleChange {
+  id             String     @id @default(uuid())
+  studyId        String     @unique
+  changedAt      DateTime
+  reason         String
+  beforeRule     String
+  afterRule      String
+  sourceEntryIds String[]   @default([])
+  createdAt      DateTime   @default(now())
+  study          DiaryStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
 }

@@ -1,10 +1,14 @@
 import { loadWorkspace } from "@/lib/workspace";
 import { seoulDateKey } from "@/lib/domain";
+import { requireUser } from "@/lib/auth";
+import { unauthorized } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const workspace = await loadWorkspace();
+  const user = await requireUser();
+  if (!user) return unauthorized();
+  const workspace = await loadWorkspace(user.id);
   const payload = {
     schemaVersion: 1,
     exportedAt: new Date().toISOString(),

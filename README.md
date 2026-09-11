@@ -1,4 +1,4 @@
-# PlanDoSee
+# PlanDoSee · Diary 2
 
 > 계획하고(Plan), 실행하고(Do), 돌아본 내용(See)을 다음 계획으로 이어가는 기록형 플래너
 
@@ -16,6 +16,8 @@ PlanDoSee는 할 일을 단순히 완료하는 데서 끝나지 않습니다. �
 - **부담이 적은 기록 흐름:** 계획과 할 일을 관리하고, 상세 패널에서 실행 시간과 막힌 이유를 기록합니다.
 - **새로고침 이후에도 유지되는 자료:** 모든 업무 자료를 서버 PostgreSQL에 저장합니다.
 - **한 번에 내보내기:** 계획, 할 일, 실행 기록, 돌아보기를 단일 JSON 파일로 내려받습니다.
+- **계정별로 잠긴 기록:** 이메일·비밀번호와 7일 DB 세션으로 내 자료만 불러옵니다.
+- **실제 5일 관찰:** 질문·지표·단위를 고정하고, 2일차 뒤 규칙 변경과 5일 합계·평균을 기록합니다.
 
 ## 제공 기능
 
@@ -33,6 +35,7 @@ PlanDoSee는 할 일을 단순히 완료하는 데서 끝나지 않습니다. �
 
 - Next.js 16 App Router, React 19, TypeScript
 - Prisma ORM 7, PostgreSQL, Neon
+- 직접 구현한 DB 세션, bcryptjs 3.0.3
 - Wanted Sans, Tailwind CSS 4, Lucide Icons
 - Vitest, Playwright, axe-core
 - Vercel 배포 및 GitHub `main` 자동 배포
@@ -126,9 +129,7 @@ plandosee/
 
 ## 데이터와 공개 범위
 
-현재 버전에는 로그인 기능이 없습니다. 따라서 첫 화면에 아래 안내를 그대로 표시합니다.
-
-> 지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이 봐도 괜찮은 내용만 넣으세요
+첫 화면은 공개 로그인·가입 화면이고, 로그인 뒤 계획과 기록은 해당 계정에만 표시됩니다. 세션 ID는 URL이 아닌 HttpOnly 쿠키로 전달되며 7일 뒤 만료됩니다. 로그아웃하거나 비밀번호를 바꾸면 기존 세션이 폐기됩니다.
 
 사용자 입력은 React의 기본 이스케이프를 유지하고 HTML로 직접 삽입하지 않습니다. DB 접속 문자열은 클라이언트 코드, API 응답, 콘솔, Git 이력에 포함하지 않으며 `.env*` 파일은 배포 업로드에서도 제외합니다.
 
@@ -141,5 +142,7 @@ plandosee/
 | [REQUIREMENTS.md](docs/REQUIREMENTS.md) | 과제 원문 ID를 유지한 검증 가능 요구사항 |
 | [VERIFICATION.md](docs/VERIFICATION.md) | 정상·경계·동시성 검증 시나리오와 추적표 |
 | [SUBMISSION.md](docs/SUBMISSION.md) | 제출 URL, AI 사용 기록, 최종 실행 결과 |
+| [T07_AUTH_IMPLEMENTATION.md](docs/T07_AUTH_IMPLEMENTATION.md) | 인증 선택, 소유권 차단 증거, AI와 판단, 남은 위험 |
+| [T07_IMPLEMENTATION_PLAN.md](docs/T07_IMPLEMENTATION_PLAN.md) | T06 인계부터 인증·5일 기록까지의 구현 계획 |
 
 요구사항 작성 방법론은 제공된 [Notion 학습 자료](https://snowy-airplane-148.notion.site/1-3d70def9f626802a942fda0dc0fd4fd4)를 참고했습니다. 해당 자료는 조건을 작성하고 검토하는 방법으로만 활용했으며, 별도의 확정 요구사항으로 간주하지 않았습니다.
