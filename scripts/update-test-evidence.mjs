@@ -20,7 +20,7 @@ const history = workbook.worksheets.getItem("실행 이력");
 summary.getRange("A3").values = [["로컬 및 운영 검증 결과 · Asia/Seoul · 2026-09-11"]];
 summary.getRange("A14:H14").values = [[
   "운영",
-  "2026-09-11 09:32 KST",
+  "2026-09-11 09:44 KST",
   productionUrl,
   "4 E2E",
   "Chromium",
@@ -46,13 +46,17 @@ trace.getRange("C7:C50").values = traceIds.map((row, index) => {
   return [String(traceEvidence[index][0] ?? "").includes("P-") ? "로컬·운영 통과" : "로컬 통과"];
 });
 
-history.getRange("A12:G13").values = [
+history.getRange("A12:G17").values = [
   [6, "2026-09-11 09:27", "운영", "pnpm test:e2e:production", "실패", "화면 locator·비동기 대기·내보내기 필드 경로 불일치", "검증 코드 3건 수정"],
   [7, "2026-09-11 09:32", "운영", "pnpm test:e2e:production", "통과", "운영 E2E 4건 통과", "운영 기준선 확정"],
+  [8, "2026-09-11 09:40", "운영", "Vercel Git 자동 배포", "실패", "깨끗한 체크아웃에 Prisma 생성 클라이언트 없음", "빌드 앞에 prisma generate 추가"],
+  [9, "2026-09-11 09:42", "로컬", "pnpm build", "통과", "Prisma 생성 후 Next.js 프로덕션 빌드 성공", "clean-build 수정 검증"],
+  [10, "2026-09-11 09:43", "운영", "Vercel Git 자동 배포", "통과", "GitHub main 커밋 자동 배포 READY", "공개 별칭 최신화"],
+  [11, "2026-09-11 09:44", "운영", "pnpm test:e2e:production", "통과", "최신 자동 배포에서 E2E 4건 통과", "최종 운영 기준선 확정"],
 ];
-history.getRange("A12:G13").format.borders = { insideHorizontal: { style: "thin", color: "#D7DEE8" } };
-history.getRange("D12:G13").format.wrapText = true;
-history.getRange("12:13").format.rowHeight = 34;
+history.getRange("A12:G17").format.borders = { insideHorizontal: { style: "thin", color: "#D7DEE8" } };
+history.getRange("D12:G17").format.wrapText = true;
+history.getRange("12:17").format.rowHeight = 34;
 
 workbook.recalculate();
 const inspect = await workbook.inspect({ kind: "workbook,sheet,formula", maxChars: 8000, tableMaxRows: 20, tableMaxCols: 10 });
